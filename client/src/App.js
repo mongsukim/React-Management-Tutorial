@@ -25,34 +25,28 @@ const styles = theme => ({
 
 })
 
-const customers = [
-  {
-  'id':1,
-  'image':'https://placeimg.com/64/64/any',
-  'name':'홍길동',
-  'birthday':'961222',
-  'gender':'남자',
-  'job':'학생'
-},
-{
-  'id':2,
-  'image':'https://placeimg.com/64/64/1',
-  'name':'야옹',
-  'birthday':'981002',
-  'gender':'남자',
-  'job':'학생'
-},
-{
-  'id':3,
-  'image':'https://placeimg.com/64/64/2',
-  'name':'모찌',
-  'birthday':'930408',
-  'gender':'여자',
-  'job':'직장인'
-}
-]
+
 
 class App extends Component {
+
+  //사용자의 요청에 따라 서버에 접근해 데이터를 불러옴. 처음엔 비어있다가, 변경되는 것
+  state ={ 
+    customers:""
+  }
+
+  //서버에 접근해서 데이터를 받아올때 componentDidMount
+  componentDidMount(){
+    this.callApi()
+    .then(res => this.setState({customers:res}))
+    .catch(err => console.log(err));
+  }
+
+  callApi = async() => {
+    const response = await fetch('/api/customers');
+    const body = await response.json();
+    return body;
+  }
+
   render(){
   const { classes } = this.props;  
 
@@ -72,7 +66,7 @@ class App extends Component {
           </TableHead>
           <TableBody>
             {
-              customers.map( c => {
+              this.state.customers ? this.state.customers.map( c => {
                 return(
                   <Customer
                     key={c.id}
@@ -84,7 +78,7 @@ class App extends Component {
                     job={c.job}
                   />
                 );
-              })
+              }) : ""
             }
           </TableBody>
        </Table>
