@@ -3,12 +3,12 @@ import React, { Component } from 'react';
 import Customer from './components/Customer'
 import './App.css';
 import Paper from '@material-ui/core/Paper';
-
 import Table from '@material-ui/core/Table';
 import TableHead from '@material-ui/core/TableHead';
 import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles'
 
 //스타일 변수
@@ -21,6 +21,9 @@ const styles = theme => ({
   },
   table:{
     minWidth:1080
+  },
+  progress:{
+    margin: theme.spacing.unit*2
   }
 
 })
@@ -28,14 +31,12 @@ const styles = theme => ({
 
 
 class App extends Component {
-
-  //사용자의 요청에 따라 서버에 접근해 데이터를 불러옴. 처음엔 비어있다가, 변경되는 것
-  state ={ 
-    customers:""
+  state = { 
+    customers:"",
+    completed:0
   }
-
-  //서버에 접근해서 데이터를 받아올때 componentDidMount
   componentDidMount(){
+    this.timer = setInterval(this.progress, 20);
     this.callApi()
     .then(res => this.setState({customers:res}))
     .catch(err => console.log(err));
@@ -45,6 +46,11 @@ class App extends Component {
     const response = await fetch('/api/customers');
     const body = await response.json();
     return body;
+  }
+
+  progress = () => {
+    const { completed } = this.state;
+    this.setState({completed:completed >= 100 ? 0 : completed + 1});
   }
 
   render(){
@@ -78,7 +84,12 @@ class App extends Component {
                     job={c.job}
                   />
                 );
-              }) : ""
+              }) :
+              <TableRow>
+                <TableCell colSpan="6" align="center">
+                  <CircularProgress className={classes.progress} variant="determinate" value={this.state.completed}/>
+                </TableCell>
+              </TableRow>
             }
           </TableBody>
        </Table>
